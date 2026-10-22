@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-900">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bishop's Senior School Mukono - Inventory Management System</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        purple: {
+                            50: '#faf5ff',
+                            100: '#f3e8ff',
+                            600: '#9333ea',
+                            700: '#7e22ce',
+                            800: '#6b21a8',
+                            900: '#581c87',
+                        },
+                        charcoal: {
+                            800: '#1f2937',
+                            900: '#111827',
+                            950: '#0b0f17',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111827;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b21a8;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; color: black !important; }
+            .print-card { border: 1px solid #ccc !important; box-shadow: none !important; }
+        }
+    </style>
+</head>
+<body class="h-full text-gray-100 bg-charcoal-950 font-sans antialiased flex flex-col selection:bg-purple-800 selection:text-white">
+
+    <!-- Toast Notification Box -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- MAIN APP WRAPPER -->
+    <div id="app" class="min-h-screen flex flex-col">
+
+        <!-- ================= AUTH LOGIN PAGE ================= -->
+        <div id="view-login" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-charcoal-950 via-charcoal-900 to-purple-950">
+            <div class="max-w-md w-full bg-charcoal-900 border border-gray-800 rounded-2xl shadow-2xl overflow-hidden">
+                <!-- Branding Header -->
+                <div class="bg-gradient-to-r from-purple-900 via-purple-800 to-gray-900 p-6 text-center border-b border-purple-700/40 relative">
+                    <div class="w-20 h-20 mx-auto mb-3 bg-white/10 rounded-full flex items-center justify-center border-2 border-purple-400/30 backdrop-blur-sm shadow-inner">
+                        <i class="fa-solid font-bold text-3xl text-purple-300 fa-school"></i>
+                    </div>
+                    <h1 class="text-2xl font-extrabold text-white tracking-wide">BISHOP'S SENIOR SCHOOL</h1>
+                    <p class="text-xs font-semibold tracking-widest text-purple-200 uppercase mt-1">MUKONO • EST. INVENTORY PORTAL</p>
+                    <div class="mt-2 inline-block px-3 py-1 bg-purple-950/80 rounded-full text-[11px] text-purple-300 font-medium border border-purple-700/50">
+                        Education Standards Agency (ESA) Compliant
+                    </div>
+                </div>
+
+                <!-- Login Form -->
+                <div class="p-6 space-y-5">
+                    <div id="login-error" class="hidden p-3 bg-red-900/40 border border-red-500/50 rounded-lg text-red-200 text-xs flex items-center gap-2">
+                        <i class="fa-solid fa-circle-exclamation text-red-400"></i>
+                        <span id="login-error-msg">Invalid login credentials.</span>
+                    </div>
+
+                    <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-300 mb-1">Username / Account Name</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"><i class="fa-solid fa-user text-sm"></i></span>
+                                <input type="text" id="login-username" required placeholder="e.g. headteacher or hod.ict" 
+                                    class="w-full pl-9 pr-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-white text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-gray-300 mb-1">Password</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"><i class="fa-solid fa-lock text-sm"></i></span>
+                                <input type="password" id="login-password" required placeholder="••••••••" 
+                                    class="w-full pl-9 pr-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-white text-sm focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full py-3 bg-gradient-to-r from-purple-700 to-purple-900 hover:from-purple-600 hover:to-purple-800 text-white font-semibold rounded-xl shadow-lg shadow-purple-950/50 transition duration-200 flex items-center justify-center gap-2 text-sm">
+                            <span>Access Portal</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </form>
+
+                    <!-- Pre-populated Quick Login Assistance -->
+                    <div class="border-t border-gray-800 pt-4 mt-4">
+                        <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+                            <span>Test Accounts Quick Access</span>
+                            <i class="fa-solid fa-key text-purple-400"></i>
+                        </p>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <button onclick="fillLogin('headteacher', 'admin123')" class="p-2 bg-gray-800/80 hover:bg-gray-800 rounded-lg text-left border border-gray-700/60 transition group">
+                                <div class="font-medium text-purple-300 group-hover:text-purple-200">Head Teacher</div>
+                                <div class="text-[10px] text-gray-400 font-mono">headteacher / admin123</div>
+                            </button>
+                            <button onclick="fillLogin('hod.ict', 'password123')" class="p-2 bg-gray-800/80 hover:bg-gray-800 rounded-lg text-left border border-gray-700/60 transition group">
+                                <div class="font-medium text-purple-300 group-hover:text-purple-200">HOD ICT</div>
+                                <div class="text-[10px] text-gray-400 font-mono">hod.ict / password123</div>
+                            </button>
+                            <button onclick="fillLogin('hod.science', 'password123')" class="p-2 bg-gray-800/80 hover:bg-gray-800 rounded-lg text-left border border-gray-700/60 transition group">
+                                <div class="font-medium text-purple-300 group-hover:text-purple-200">HOD Sciences</div>
+                                <div class="text-[10px] text-gray-400 font-mono">hod.science / password123</div>
+                            </button>
+                            <button onclick="fillLogin('hod.estates', 'password123')" class="p-2 bg-gray-800/80 hover:bg-gray-800 rounded-lg text-left border border-gray-700/60 transition group">
+                                <div class="font-medium text-purple-300 group-hover:text-purple-200">HOD Estates</div>
+                                <div class="text-[10px] text-gray-400 font-mono">hod.estates / password123</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-gray-950 text-center text-[11px] text-gray-500 border-t border-gray-800">
+                    Bishop's Senior School Mukono &bull; Property & Equipment Inventory Management System
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ================= MAIN DASHBOARD SHELL ================= -->
+        <div id="view-dashboard" class="hidden min-h-screen flex flex-col bg-charcoal-950">
+            
+            <!-- Top Navigation Bar -->
+            <header class="bg-gray-900 border-b border-gray-800 sticky top-0 z-30 no-print">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center justify-between h-16">
+                        
+                        <!-- School Header Branding -->
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-purple-900/80 border border-purple-600/50 rounded-lg flex items-center justify-center text-purple-200 shadow-md">
+                                <i class="fa-solid fa-graduation-cap text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-base font-bold text-white leading-tight">Bishop's Senior School Mukono</h2>
+                                <p class="text-xs text-purple-300/80 font-medium flex items-center gap-1.5">
+                                    <span>ESA Inventory Portal</span>
+                                    <span>•</span>
+                                    <span id="nav-user-badge" class="px-2 py-0.5 rounded text-[10px] bg-purple-950 text-purple-200 border border-purple-800">Role Badge</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Top Right Live Countdown & User Menu -->
+                        <div class="flex items-center gap-4">
+                            <!-- Countdown Display Box -->
+                            <div class="hidden md:flex items-center gap-2 bg-gray-800/90 border border-gray-700 px-3 py-1.5 rounded-lg text-xs">
+                                <i class="fa-solid fa-hourglass-half text-purple-400"></i>
+                                <span class="text-gray-400 font-medium">Audit Deadline:</span>
+                                <span id="timer-display" class="font-mono text-purple-300 font-semibold">Calculating...</span>
+                            </div>
+
+                            <!-- Current User Info -->
+                            <div class="flex items-center gap-3 pl-3 border-l border-gray-800">
+                                <div class="text-right hidden sm:block">
+                                    <div id="nav-user-name" class="text-xs font-semibold text-white">User Name</div>
+                                    <div id="nav-user-role" class="text-[10px] text-gray-400">User Title</div>
+                                </div>
+                                <button onclick="handleLogout()" title="Log Out" class="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition">
+                                    <i class="fa-solid fa-right-from-bracket text-base"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Container -->
+            <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+                <!-- Alert / Banner Bar -->
+                <div id="deadline-banner" class="mb-6 p-4 bg-purple-950/60 border border-purple-800/60 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-purple-900/50 rounded-lg text-purple-300"><i class="fa-solid fa-bullhorn text-lg"></i></div>
+                        <div>
+                            <span class="font-bold text-purple-200">Official Notice:</span>
+                            <span class="text-gray-300 ml-1">Education Standards Agency (ESA) Annual Inventory Audit Submission Deadline.</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 font-mono font-bold text-purple-300 text-sm bg-gray-900/80 px-3 py-1.5 rounded-lg border border-purple-900/80">
+                        <i class="fa-regular fa-clock"></i>
+                        <span id="banner-timer-display">Countdown Loading...</span>
+                    </div>
+                </div>
+
+                <!-- ================= HOD ISOLATED VIEW ================= -->
+                <div id="section-hod-view" class="hidden space-y-6">
+                    
+                    <!-- Department Header Banner -->
+                    <div class="bg-gradient-to-r from-gray-900 via-purple-950 to-gray-900 border border-purple-900/50 p-6 rounded-2xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2.5 py-0.5 bg-purple-900 text-purple-200 rounded-full text-xs font-semibold border border-purple-700">DEPARTMENT ISOLATION ACTIVE</span>
+                                <span id="hod-submit-status-badge" class="px-2.5 py-0.5 bg-amber-950 text-amber-300 rounded-full text-xs font-medium border border-amber-800">Draft Status</span>
+                            </div>
+                            <h2 id="hod-dept-name" class="text-2xl font-black text-white tracking-wide">DEPARTMENT NAME</h2>
+                            <p class="text-xs text-gray-300">You are logged in as Head of Department (<span id="hod-head-name" class="text-purple-300 font-semibold">--</span>). You can only access and manage inventory assigned to your department.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <button onclick="openAddItemModal()" class="px-4 py-2.5 bg-purple-700 hover:bg-purple-600 text-white font-medium rounded-xl text-xs flex items-center gap-2 shadow-lg transition">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>Add Department Item</span>
+                            </button>
+                            <button id="btn-hod-submit" onclick="submitDepartmentInventory()" class="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white font-medium rounded-xl text-xs flex items-center gap-2 shadow-lg transition">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>Submit Inventory to Head Teacher</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Department Stats -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl">
+                            <div class="text-gray-400 text-xs font-medium mb-1">Total Registered Items</div>
+                            <div id="hod-stat-total" class="text-2xl font-bold text-white">0</div>
+                        </div>
+                        <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl">
+                            <div class="text-gray-400 text-xs font-medium mb-1">Functional / Good Condition</div>
+                            <div id="hod-stat-good" class="text-2xl font-bold text-emerald-400">0</div>
+                        </div>
+                        <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl">
+                            <div class="text-gray-400 text-xs font-medium mb-1">Needs Repair / Maintenance</div>
+                            <div id="hod-stat-repair" class="text-2xl font-bold text-amber-400">0</div>
+                        </div>
+                        <div class="bg-gray-900 border border-gray-800 p-4 rounded-xl">
+                            <div class="text-gray-400 text-xs font-medium mb-1">Scrap / Broken Items</div>
+                            <div id="hod-stat-scrap" class="text-2xl font-bold text-red-400">0</div>
+                        </div>
+                    </div>
+
+                    <!-- Inventory Table Card -->
+                    <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-xl">
+                        <div class="p-4 border-b border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-3 bg-gray-900/80">
+                            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-boxes-stacked text-purple-400"></i>
+                                <span>Department Inventory Table</span>
+                            </h3>
+                            <div class="flex items-center gap-2 w-full sm:w-auto">
+                                <input type="text" id="hod-search-input" onkeyup="filterHodTable()" placeholder="Search item, room, serial..." 
+                                    class="w-full sm:w-64 px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-xs text-white focus:outline-none focus:border-purple-500">
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs text-gray-300">
+                                <thead class="bg-gray-950 text-gray-400 uppercase font-semibold text-[11px] border-b border-gray-800">
+                                    <tr>
+                                        <th class="p-3">Item Details</th>
+                                        <th class="p-3">Category</th>
+                                        <th class="p-3">Qty</th>
+                                        <th class="p-3">Location / Room</th>
+                                        <th class="p-3">Condition Description</th>
+                                        <th class="p-3">Remarks</th>
+                                        <th class="p-3 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="hod-table-body" class="divide-y divide-gray-800/60">
+                                    <!-- Rendered dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= ADMIN / HEAD TEACHER VIEW ================= -->
+                <div id="section-admin-view" class="hidden space-y-6">
+                    
+                    <!-- Admin Navigation Tabs -->
+                    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-800 pb-3 no-print">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button onclick="switchAdminTab('central')" id="tab-btn-central" class="admin-tab-btn active px-4 py-2 rounded-xl text-xs font-semibold bg-purple-900 text-white border border-purple-700">
+                                <i class="fa-solid fa-chart-pie mr-1.5"></i> Central Audit Overview
+                            </button>
+                            <button onclick="switchAdminTab('departments')" id="tab-btn-departments" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-gray-900 text-gray-300 hover:bg-gray-800 border border-gray-800">
+                                <i class="fa-solid fa-sitemap mr-1.5"></i> Departments & HODs
+                            </button>
+                            <button onclick="switchAdminTab('admins')" id="tab-btn-admins" class="admin-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-gray-900 text-gray-300 hover:bg-gray-800 border border-gray-800">
+                                <i class="fa-solid fa-user-shield mr-1.5"></i> Admin User Management
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="openSetDeadlineModal()" class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-xl text-xs font-medium text-gray-200 transition">
+                                <i class="fa-regular fa-clock text-purple-400 mr-1"></i> Set Audit Deadline
+                            </button>
+                            <button onclick="exportToCSV()" class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-xl text-xs font-medium text-emerald-400 transition">
+                                <i class="fa-solid fa-file-excel mr-1"></i> Export CSV
+                            </button>
+                            <button onclick="window.print()" class="px-3 py-1.5 bg-purple-800 hover:bg-purple-700 text-white rounded-xl text-xs font-medium shadow transition">
+                                <i class="fa-solid fa-print mr-1"></i> Print Audit Report
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- TAB 1: CENTRAL OVERVIEW -->
+                    <div id="admin-tab-central" class="space-y-6">
+                        <!-- Stats Grid -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl">
+                                <p class="text-xs font-medium text-gray-400">Total Departments</p>
+                                <p id="admin-stat-depts" class="text-2xl font-black text-white mt-1">0</p>
+                            </div>
+                            <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl">
+                                <p class="text-xs font-medium text-gray-400">Total School Property Items</p>
+                                <p id="admin-stat-items" class="text-2xl font-black text-purple-400 mt-1">0</p>
+                            </div>
+                            <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl">
+                                <p class="text-xs font-medium text-gray-400">Submissions Status</p>
+                                <p id="admin-stat-submitted" class="text-2xl font-black text-emerald-400 mt-1">0 / 0</p>
+                            </div>
+                            <div class="bg-gray-900 border border-gray-800 p-4 rounded-2xl">
+                                <p class="text-xs font-medium text-gray-400">Scrap / Repair Action Required</p>
+                                <p id="admin-stat-action" class="text-2xl font-black text-amber-400 mt-1">0</p>
+                            </div>
+                        </div>
+
+                        <!-- Central Inventory Table -->
+                        <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-xl">
+                            <div class="p-4 border-b border-gray-800 flex flex-col md:flex-row md:items-center justify-between gap-3 bg-gray-900/90">
+                                <div>
+                                    <h3 class="text-sm font-bold text-white">Central Master Inventory List</h3>
+                                    <p class="text-[11px] text-gray-400">All registered equipment and physical assets across all academic & non-academic departments.</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <select id="admin-filter-dept" onchange="renderCentralTable()" class="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-xs text-white focus:outline-none">
+                                        <option value="ALL">All Departments</option>
+                                    </select>
+                                    <input type="text" id="admin-search-input" onkeyup="renderCentralTable()" placeholder="Search all items..." 
+                                        class="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-xs text-white focus:outline-none">
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-xs text-gray-300">
+                                    <thead class="bg-gray-950 text-gray-400 uppercase font-semibold text-[11px] border-b border-gray-800">
+                                        <tr>
+                                            <th class="p-3">Department</th>
+                                            <th class="p-3">Item Details</th>
+                                            <th class="p-3">Category</th>
+                                            <th class="p-3">Qty</th>
+                                            <th class="p-3">Room / Location</th>
+                                            <th class="p-3">Condition & Description</th>
+                                            <th class="p-3">HOD Remarks</th>
+                                            <th class="p-3">Admin Audit Remarks</th>
+                                            <th class="p-3 text-right no-print">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="admin-central-table-body" class="divide-y divide-gray-800/60">
+                                        <!-- Rendered dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: DEPARTMENTS & HOD MANAGEMENT -->
+                    <div id="admin-tab-departments" class="hidden space-y-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold text-white">Department Submissions & HOD Accounts</h3>
+                                <p class="text-xs text-gray-400">Manage department listings, assign HOD login credentials, and monitor audit submission state.</p>
+                            </div>
+                            <button onclick="openAddDepartmentModal()" class="px-4 py-2 bg-purple-700 hover:bg-purple-600 text-white rounded-xl text-xs font-semibold shadow transition">
+                                <i class="fa-solid fa-plus mr-1"></i> Add New Department
+                            </button>
+                        </div>
+
+                        <!-- Department Cards Grid -->
+                        <div id="admin-dept-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- Rendered dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: ADMIN USER MANAGEMENT -->
+                    <div id="admin-tab-admins" class="hidden space-y-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold text-white">System Administrators</h3>
+                                <p class="text-xs text-gray-400">Head Teacher, Deputy Head, Bursar, and System Admin accounts.</p>
+                            </div>
+                            <button onclick="openAddAdminModal()" class="px-4 py-2 bg-purple-700 hover:bg-purple-600 text-white rounded-xl text-xs font-semibold shadow transition">
+                                <i class="fa-solid fa-user-plus mr-1"></i> Add New Admin User
+                            </button>
+                        </div>
+
+                        <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-xl">
+                            <table class="w-full text-left text-xs text-gray-300">
+                                <thead class="bg-gray-950 text-gray-400 uppercase font-semibold text-[11px] border-b border-gray-800">
+                                    <tr>
+                                        <th class="p-3">Full Name / Title</th>
+                                        <th class="p-3">Username</th>
+                                        <th class="p-3">Admin Role</th>
+                                        <th class="p-3">Date Added</th>
+                                        <th class="p-3 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-users-table-body" class="divide-y divide-gray-800/60">
+                                    <!-- Rendered dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+
+    <!-- ================= MODALS SECTION ================= -->
+
+    <!-- Modal: Add / Edit Item (HOD) -->
+    <div id="modal-item" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl">
+            <div class="p-4 bg-purple-950/80 border-b border-purple-800 flex items-center justify-between">
+                <h3 id="modal-item-title" class="text-sm font-bold text-white">Add New Department Item</h3>
+                <button onclick="closeModal('modal-item')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            <form onsubmit="saveHodItem(event)" class="p-5 space-y-4 text-xs">
+                <input type="hidden" id="item-form-id">
+                
+                <div>
+                    <label class="block font-medium text-gray-300 mb-1">Item Name / Description *</label>
+                    <input type="text" id="item-form-name" required placeholder="e.g. HP Desktop Computer, Laboratory Microscope" 
+                        class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-medium text-gray-300 mb-1">Category *</label>
+                        <select id="item-form-category" required class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500">
+                            <option value="Electronics & IT">Electronics & IT</option>
+                            <option value="Laboratory Equipment">Laboratory Equipment</option>
+                            <option value="Furniture & Fixtures">Furniture & Fixtures</option>
+                            <option value="Sports Gear">Sports Gear</option>
+                            <option value="Textbooks & Media">Textbooks & Media</option>
+                            <option value="Machinery & Tools">Machinery & Tools</option>
+                            <option value="Vehicles & Transport">Vehicles & Transport</option>
+                            <option value="Other Property">Other Property</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-medium text-gray-300 mb-1">Quantity *</label>
+                        <input type="number" id="item-form-qty" min="1" required value="1" 
+                            class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-medium text-gray-300 mb-1">Room / Location *</label>
+                        <input type="text" id="item-form-location" required placeholder="e.g. Lab 2, ICT Room B, Main Store" 
+                            class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500">
+                    </div>
+                    <div>
+                        <label class="block font-medium text-gray-300 mb-1">Serial No. / Asset Tag</label>
+                        <input type="text" id="item-form-tag" placeholder="e.g. BSSM/ICT/2026/042" 
+                            class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-medium text-gray-300 mb-1">Condition Rating *</label>
+                        <select id="item-form-condition" required class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500">
+                            <option value="Brand New">Brand New</option>
+                            <option value="Good Condition" selected>Good / Functional</option>
+                            <option value="Needs Minor Repair">Needs Minor Repair</option>
+                            <option value="Under Maintenance">Under Maintenance</option>
+                            <option value="Broken / Scrap">Broken / Scrap</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-medium text-gray-300 mb-1">Detailed Condition Description</label>
+                        <input type="text" id="item-form-condition-desc" placeholder="e.g. Faulty screen, missing power cable" 
+                            class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-medium text-gray-300 mb-1">HOD Remarks / Notes</label>
+                    <textarea id="item-form-remarks" rows="2" placeholder="Additional observations regarding this property..." 
+                        class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"></textarea>
+                </div>
+
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-item')" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-purple-700 hover:bg-purple-600 text-white font-medium rounded-lg shadow">Save Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Modal: Add New Admin (Admin) -->
+    <div id="modal-admin" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl">
+            <div class="p-4 bg-purple-950/80 border-b border-purple-800 flex items-center justify-between">
+                <h3 class="text-sm font-bold text-white">Add System Administrator</h3>
+                <button onclick="closeModal('modal-admin')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            <form onsubmit="saveAdminUser(event)" class="p-5 space-y-4 text-xs">
+                <div>
+                    <label class="block font-medium text-gray-300 mb-1">Full Name & Title *</label>
+                    <input type="text" id="admin-form-name" required placeholder="e.g. Mr. Okello John (Deputy Head)" 
+                        class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block font-medium text-gray-300 mb-1">Login Username *</label>
+                    <input type="text" id="admin-form-username" required placeholder="e.g. deputy.head" 
+                        class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block font-medium text-gray-300 mb-1">Password *</label>
+                    <input type="password" id="admin-form-password" required placeholder="••••••••" 
+                        class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block font-medium text-gray-300 mb-1">Role Title</label>
+                    <input type="text" id="admin-form-role" required value="System Administrator" 
+                        class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500">
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-admin')" class="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-purple-700 text-white font-medium rounded-lg shadow">Create Admin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Modal: Add / Edit Department & HOD -->
+    <div id="modal-dept" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl">
+            <div class="p-4 bg-purple-950/80 border-b border-purple-800 flex items-center justify-between">
+                <h3 id="modal-dept-title" class="text-sm font-bold text-white">Add New School Department</h3>
+                <button onclick="closeModal('modal-dept')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            <form onsubmit="saveDepartment(event)" class="p-5 space-y-4 text-xs">
+                <input type="hidden" id="dept-form-id">
+                <div>
+                    <label class="block font-medium text-gray-300 mb-1">Department Name *</label>
+                    <input type="text" id="dept-form-name" required placeholder="e.g. Agriculture & Farm, Music / Arts, Sickbay" 
+                        class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block font-medium text-gray-300 mb-1">Head of Department (HOD) Full Name *</label>
+                    <input type="text" id="dept-form-hod-name" required placeholder="e.g. Ms. Nabawanuka Sarah" 
+                        class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block font-medium text-gray-300 mb-1">HOD Username *</label>
+                    <input type="text" id="dept-form-username" required placeholder="e.g. hod.agric" 
+                        class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block font-medium text-gray-300 mb-1">HOD Login Password *</label>
+                    <input type="password" id="dept-form-password" required placeholder="••••••••" 
+                        class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500">
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-dept')" class="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-purple-700 text-white font-medium rounded-lg shadow">Save Department</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Modal: Admin Audit Remarks -->
+    <div id="modal-audit" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl">
+            <div class="p-4 bg-purple-950/80 border-b border-purple-800 flex items-center justify-between">
+                <h3 class="text-sm font-bold text-white">Add ESA Audit Remark</h3>
+                <button onclick="closeModal('modal-audit')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            <form onsubmit="saveAuditRemark(event)" class="p-5 space-y-4 text-xs">
+                <input type="hidden" id="audit-form-item-id">
+                <div>
+                    <label class="block font-medium text-gray-300 mb-1">Item Title</label>
+                    <div id="audit-form-item-name" class="p-2 bg-gray-800 rounded text-purple-300 font-semibold">--</div>
+                </div>
+                <div>
+                    <label class="block font-medium text-gray-300 mb-1">Head Teacher / Admin Remark</label>
+                    <textarea id="audit-form-remark" rows="3" required placeholder="e.g. Verified by ESA Inspector. Approved for disposal or repair." 
+                        class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"></textarea>
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-audit')" class="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-purple-700 text-white font-medium rounded-lg shadow">Save Remark</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Modal: Set Submission Deadline -->
+    <div id="modal-deadline" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl">
+            <div class="p-4 bg-purple-950/80 border-b border-purple-800 flex items-center justify-between">
+                <h3 class="text-sm font-bold text-white">Set Audit Submission Deadline</h3>
+                <button onclick="closeModal('modal-deadline')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            <form onsubmit="saveDeadline(event)" class="p-5 space-y-4 text-xs">
+                <div>
+                    <label class="block font-medium text-gray-300 mb-1">Select Deadline Date & Time</label>
+                    <input type="datetime-local" id="deadline-form-datetime" required 
+                        class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500">
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('modal-deadline')" class="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-purple-700 text-white font-medium rounded-lg shadow">Update Deadline</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- APPLICATION JAVASCRIPT LOGIC -->
+    <script>
+        // ================= APP INITIAL DEFAULT DATA =================
+        const DEFAULT_DEPARTMENTS = [
+            { id: 'dept-ict', name: 'ICT & Computer Labs', hodName: 'Mr. Kato Paul', username: 'hod.ict', password: 'password123', submitted: false },
+            { id: 'dept-science', name: 'Science Laboratories', hodName: 'Dr. Mukasa David', username: 'hod.science', password: 'password123', submitted: false },
+            { id: 'dept-estates', name: 'Estates & Infrastructure', hodName: 'Mr. Ssemwanga James', username: 'hod.estates', password: 'password123', submitted: false },
+            { id: 'dept-sports', name: 'Sports & Athletics', hodName: 'Ms. Akello Grace', username: 'hod.sports', password: 'password123', submitted: false },
+            { id: 'dept-languages', name: 'Languages & Literature', hodName: 'Mrs. Namubiru Mary', username: 'hod.languages', password: 'password123', submitted: false }
+        ];
+
+        const DEFAULT_ADMINS = [
+            { id: 'admin-1', name: 'Rev. Head Teacher', username: 'headteacher', password: 'admin123', role: 'Head Teacher', dateAdded: '2026-01-10' }
+        ];
+
+        const DEFAULT_ITEMS = [
+            {
+                id: 'item-1',
+                deptId: 'dept-ict',
+                name: 'HP Desktop Computers Core i5',
+                category: 'Electronics & IT',
+                quantity: 25,
+                location: 'Computer Lab 1',
+                tag: 'BSSM/ICT/PC/001-025',
+                condition: 'Good Condition',
+                conditionDesc: 'Fully functional, pre-installed with Ubuntu Linux',
+                remarks: 'Used for O-Level Computer Studies practicals',
+                adminRemark: 'Inspected by ESA Officer on 15th Feb 2026'
+            },
+            {
+                id: 'item-2',
+                deptId: 'dept-ict',
+                name: 'Epson Overhead Projector',
+                category: 'Electronics & IT',
+                quantity: 2,
+                location: 'Main ICT Lecture Room',
+                tag: 'BSSM/ICT/PRJ/002',
+                condition: 'Needs Minor Repair',
+                conditionDesc: 'Bulb dimming, requires replacement',
+                remarks: 'Scheduled for bulb change next week',
+                adminRemark: ''
+            },
+            {
+                id: 'item-3',
+                deptId: 'dept-science',
+                name: 'Digital Binocular Microscopes',
+                category: 'Laboratory Equipment',
+                quantity: 12,
+                location: 'Biology Lab A',
+                tag: 'BSSM/SCI/MIC/101',
+                condition: 'Good Condition',
+                conditionDesc: 'Clean lenses, power cords intact',
+                remarks: 'Checked ahead of UNEB practical exams',
+                adminRemark: 'Compliant with ESA Science Standards'
+            },
+            {
+                id: 'item-4',
+                deptId: 'dept-estates',
+                name: 'Wooden Classroom Student Desks',
+                category: 'Furniture & Fixtures',
+                quantity: 120,
+                location: 'Senior 4 Blocks',
+                tag: 'BSSM/EST/DSK/S4',
+                condition: 'Needs Minor Repair',
+                conditionDesc: '15 desks have loose varnish/screws',
+                remarks: 'Carpentry repair scheduled',
+                adminRemark: ''
+            }
+        ];
+
+        // Default deadline: 14 days in future
+        const defaultDeadlineDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+
+        // STATE STORE (persisted in localStorage)
+        let state = {
+            currentUser: null, // { type: 'admin'|'hod', data: object }
+            departments: [],
+            admins: [],
+            items: [],
+            deadline: defaultDeadlineDate
+        };
+
+        // DOM Timer References (updated directly to prevent re-render flickering)
+        let timerInterval = null;
+
+        // ================= INITIALIZATION & STORAGE =================
+        function initApp() {
+            loadState();
+            setupTimer();
+            checkAuth();
+        }
+
+        function loadState() {
+            const storedState = localStorage.getItem('bssm_inventory_state_v2');
+            if (storedState) {
+                try {
+                    state = JSON.parse(storedState);
+                } catch (e) {
+                    console.error('Failed to parse state from localStorage', e);
+                    resetToDefaultState();
+                }
+            } else {
+                resetToDefaultState();
+            }
+        }
+
+        function resetToDefaultState() {
+            state = {
+                currentUser: null,
+                departments: DEFAULT_DEPARTMENTS,
+                admins: DEFAULT_ADMINS,
+                items: DEFAULT_ITEMS,
+                deadline: defaultDeadlineDate
+            };
+            saveState();
+        }
+
+        function saveState() {
+            localStorage.setItem('bssm_inventory_state_v2', JSON.stringify(state));
+        }
+
+        // ================= DIRECT TIMER UPDATER (NO FLICKER) =================
+        function setupTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            updateTimerText();
+            timerInterval = setInterval(updateTimerText, 1000);
+        }
+
+        function updateTimerText() {
+            const timerElem = document.getElementById('timer-display');
+            const bannerTimerElem = document.getElementById('banner-timer-display');
+            if (!timerElem || !bannerTimerElem) return;
+
+            const now = new Date().getTime();
+            const target = new Date(state.deadline || defaultDeadlineDate).getTime();
+            const diff = target - now;
+
+            if (diff <= 0) {
+                const text = "AUDIT DEADLINE PASSED";
+                if (timerElem.innerText !== text) {
+                    timerElem.innerText = text;
+                    bannerTimerElem.innerText = text;
+                    timerElem.classList.add('text-red-400');
+                    bannerTimerElem.classList.add('text-red-400');
+                }
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+            const formatted = `${days}d ${hours}h ${mins}m ${secs}s Remaining`;
+            
+            // Direct DOM update avoids re-rendering full components
+            if (timerElem.innerText !== formatted) {
+                timerElem.innerText = formatted;
+                bannerTimerElem.innerText = formatted;
+            }
+        }
+
+        // ================= AUTHENTICATION & ROUTING =================
+        function checkAuth() {
+            const loginView = document.getElementById('view-login');
+            const dashboardView = document.getElementById('view-dashboard');
+
+            if (!state.currentUser) {
+                loginView.classList.remove('hidden');
+                dashboardView.classList.add('hidden');
+            } else {
+                loginView.classList.add('hidden');
+                dashboardView.classList.remove('hidden');
+                renderDashboard();
+            }
+        }
+
+        function fillLogin(username, password) {
+            document.getElementById('login-username').value = username;
+            document.getElementById('login-password').value = password;
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('login-username').value.trim();
+            const p = document.getElementById('login-password').value.trim();
+            const errBox = document.getElementById('login-error');
+
+            // 1. Check Admins
+            const foundAdmin = state.admins.find(a => a.username.toLowerCase() === u.toLowerCase() && a.password === p);
+            if (foundAdmin) {
+                state.currentUser = { type: 'admin', data: foundAdmin };
+                saveState();
+                errBox.classList.add('hidden');
+                showToast(`Welcome back, ${foundAdmin.name}!`);
+                checkAuth();
+                return;
+            }
+
+            // 2. Check HODs
+            const foundDept = state.departments.find(d => d.username.toLowerCase() === u.toLowerCase() && d.password === p);
+            if (foundDept) {
+                state.currentUser = { type: 'hod', data: foundDept };
+                saveState();
+                errBox.classList.add('hidden');
+                showToast(`Welcome ${foundDept.hodName} (${foundDept.name})`);
+                checkAuth();
+                return;
+            }
+
+            // Failed
+            errBox.classList.remove('hidden');
+            document.getElementById('login-error-msg').innerText = "Incorrect username or password.";
+        }
+
+        function handleLogout() {
+            state.currentUser = null;
+            saveState();
+            checkAuth();
+            showToast("Logged out successfully");
+        }
+
+        // ================= DASHBOARD RENDERER =================
+        function renderDashboard() {
+            const user = state.currentUser;
+            if (!user) return;
+
+            // Nav user info
+            const badge = document.getElementById('nav-user-badge');
+            const nameElem = document.getElementById('nav-user-name');
+            const roleElem = document.getElementById('nav-user-role');
+
+            const hodSection = document.getElementById('section-hod-view');
+            const adminSection = document.getElementById('section-admin-view');
+
+            if (user.type === 'hod') {
+                badge.innerText = "HOD ISOLATED PORTAL";
+                badge.className = "px-2 py-0.5 rounded text-[10px] bg-purple-950 text-purple-300 border border-purple-800 font-bold";
+                nameElem.innerText = user.data.hodName;
+                roleElem.innerText = `Head of ${user.data.name}`;
+
+                hodSection.classList.remove('hidden');
+                adminSection.classList.add('hidden');
+
+                renderHodView();
+            } else if (user.type === 'admin') {
+                badge.innerText = "ADMIN / HEAD TEACHER";
+                badge.className = "px-2 py-0.5 rounded text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-800 font-bold";
+                nameElem.innerText = user.data.name;
+                roleElem.innerText = user.data.role || "Head Teacher / Admin";
+
+                hodSection.classList.add('hidden');
+                adminSection.classList.remove('hidden');
+
+                renderAdminView();
+            }
+        }
+
+        // ================= HOD ISOLATED VIEW LOGIC =================
+        function renderHodView() {
+            const dept = state.currentUser.data;
+            document.getElementById('hod-dept-name').innerText = dept.name;
+            document.getElementById('hod-head-name').innerText = dept.hodName;
+
+            // Submission status badge
+            const statusBadge = document.getElementById('hod-submit-status-badge');
+            const submitBtn = document.getElementById('btn-hod-submit');
+
+            // Fetch live dept state from state array
+            const currentDeptObj = state.departments.find(d => d.id === dept.id) || dept;
+
+            if (currentDeptObj.submitted) {
+                statusBadge.className = "px-2.5 py-0.5 bg-emerald-950 text-emerald-300 rounded-full text-xs font-semibold border border-emerald-800";
+                statusBadge.innerText = "Submitted to Head Teacher";
+                submitBtn.innerText = "Re-Submit Updated Inventory";
+            } else {
+                statusBadge.className = "px-2.5 py-0.5 bg-amber-950 text-amber-300 rounded-full text-xs font-semibold border border-amber-800";
+                statusBadge.innerText = "Draft / Pending Submission";
+                submitBtn.innerText = "Submit Inventory to Head Teacher";
+            }
+
+            // Strict Filter: ONLY items belonging to THIS department
+            const deptItems = state.items.filter(item => item.deptId === dept.id);
+
+            // Compute Dept Stats
+            const totalQty = deptItems.reduce((acc, curr) => acc + parseInt(curr.quantity || 1), 0);
+            const goodCount = deptItems.filter(i => i.condition === 'Good Condition' || i.condition === 'Brand New').length;
+            const repairCount = deptItems.filter(i => i.condition === 'Needs Minor Repair' || i.condition === 'Under Maintenance').length;
+            const scrapCount = deptItems.filter(i => i.condition === 'Broken / Scrap').length;
+
+            document.getElementById('hod-stat-total').innerText = totalQty;
+            document.getElementById('hod-stat-good').innerText = goodCount;
+            document.getElementById('hod-stat-repair').innerText = repairCount;
+            document.getElementById('hod-stat-scrap').innerText = scrapCount;
+
+            renderHodTable(deptItems);
+        }
+
+        function renderHodTable(items) {
+            const tbody = document.getElementById('hod-table-body');
+            tbody.innerHTML = '';
+
+            if (items.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-8 text-gray-500">
+                            <i class="fa-solid fa-folder-open text-2xl mb-2 block"></i>
+                            No items logged in your department yet. Click "Add Department Item" to begin.
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            items.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-800/40 transition";
+
+                let condColor = "bg-gray-800 text-gray-300 border-gray-700";
+                if (item.condition === 'Brand New') condColor = "bg-emerald-950 text-emerald-300 border-emerald-800";
+                if (item.condition === 'Good Condition') condColor = "bg-emerald-950 text-emerald-300 border-emerald-800";
+                if (item.condition === 'Needs Minor Repair') condColor = "bg-amber-950 text-amber-300 border-amber-800";
+                if (item.condition === 'Under Maintenance') condColor = "bg-blue-950 text-blue-300 border-blue-800";
+                if (item.condition === 'Broken / Scrap') condColor = "bg-red-950 text-red-300 border-red-800";
+
+                tr.innerHTML = `
+                    <td class="p-3">
+                        <div class="font-bold text-white text-sm">${escapeHtml(item.name)}</div>
+                        <div class="text-[10px] text-gray-400 font-mono">Tag: ${escapeHtml(item.tag || 'N/A')}</div>
+                    </td>
+                    <td class="p-3">
+                        <span class="px-2 py-0.5 bg-gray-800 text-purple-300 rounded border border-gray-700 text-[10px]">${escapeHtml(item.category)}</span>
+                    </td>
+                    <td class="p-3 font-semibold text-white">${item.quantity}</td>
+                    <td class="p-3 text-gray-300"><i class="fa-solid fa-location-dot text-purple-400 mr-1"></i>${escapeHtml(item.location)}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-medium border ${condColor}">${escapeHtml(item.condition)}</span>
+                        ${item.conditionDesc ? `<div class="text-[10px] text-gray-400 mt-1">${escapeHtml(item.conditionDesc)}</div>` : ''}
+                    </td>
+                    <td class="p-3 text-gray-300">
+                        ${item.remarks ? `<div>${escapeHtml(item.remarks)}</div>` : '<span class="text-gray-600">-</span>'}
+                        ${item.adminRemark ? `<div class="mt-1 text-[10px] text-emerald-400 bg-emerald-950/40 p-1 rounded border border-emerald-900"><i class="fa-solid fa-shield-halved mr-1"></i>Admin: ${escapeHtml(item.adminRemark)}</div>` : ''}
+                    </td>
+                    <td class="p-3 text-right space-x-1">
+                        <button onclick="editItem('${item.id}')" class="p-1.5 text-gray-400 hover:text-purple-300 hover:bg-gray-800 rounded" title="Edit Item"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteItem('${item.id}')" class="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-800 rounded" title="Delete Item"><i class="fa-solid fa-trash-can"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterHodTable() {
+            const query = document.getElementById('hod-search-input').value.toLowerCase();
+            const deptId = state.currentUser.data.id;
+            const filtered = state.items.filter(item => 
+                item.deptId === deptId && (
+                    item.name.toLowerCase().includes(query) ||
+                    item.location.toLowerCase().includes(query) ||
+                    (item.tag && item.tag.toLowerCase().includes(query)) ||
+                    item.category.toLowerCase().includes(query)
+                )
+            );
+            renderHodTable(filtered);
+        }
+
+        function submitDepartmentInventory() {
+            const deptId = state.currentUser.data.id;
+            const deptObj = state.departments.find(d => d.id === deptId);
+            if (deptObj) {
+                deptObj.submitted = true;
+                saveState();
+                renderHodView();
+                showToast("Department inventory officially submitted to Head Teacher!");
+            }
+        }
+
+        // ================= ADMIN VIEW LOGIC =================
+        function switchAdminTab(tabName) {
+            const tabs = ['central', 'departments', 'admins'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-btn-${t}`);
+                const content = document.getElementById(`admin-tab-${t}`);
+                if (t === tabName) {
+                    btn.className = "admin-tab-btn active px-4 py-2 rounded-xl text-xs font-semibold bg-purple-900 text-white border border-purple-700 shadow";
+                    content.classList.remove('hidden');
+                } else {
+                    btn.className = "admin-tab-btn px-4 py-2 rounded-xl text-xs font-semibold bg-gray-900 text-gray-300 hover:bg-gray-800 border border-gray-800";
+                    content.classList.add('hidden');
+                }
+            });
+        }
+
+        function renderAdminView() {
+            // Populate department selector filter
+            const select = document.getElementById('admin-filter-dept');
+            select.innerHTML = '<option value="ALL">All Departments</option>';
+            state.departments.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d.id;
+                opt.innerText = d.name;
+                select.appendChild(opt);
+            });
+
+            // Stats
+            document.getElementById('admin-stat-depts').innerText = state.departments.length;
+            const totalItems = state.items.reduce((acc, c) => acc + parseInt(c.quantity || 1), 0);
+            document.getElementById('admin-stat-items').innerText = totalItems;
+
+            const submittedDepts = state.departments.filter(d => d.submitted).length;
+            document.getElementById('admin-stat-submitted').innerText = `${submittedDepts} / ${state.departments.length}`;
+
+            const actionNeeded = state.items.filter(i => i.condition === 'Broken / Scrap' || i.condition === 'Needs Minor Repair').length;
+            document.getElementById('admin-stat-action').innerText = actionNeeded;
+
+            renderCentralTable();
+            renderDepartmentCards();
+            renderAdminUsersTable();
+        }
+
+        function renderCentralTable() {
+            const filterDept = document.getElementById('admin-filter-dept').value;
+            const query = document.getElementById('admin-search-input').value.toLowerCase();
+
+            let items = state.items;
+
+            if (filterDept !== 'ALL') {
+                items = items.filter(i => i.deptId === filterDept);
+            }
+
+            if (query) {
+                items = items.filter(i => 
+                    i.name.toLowerCase().includes(query) ||
+                    i.location.toLowerCase().includes(query) ||
+                    (i.tag && i.tag.toLowerCase().includes(query))
+                );
+            }
+
+            const tbody = document.getElementById('admin-central-table-body');
+            tbody.innerHTML = '';
+
+            if (items.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-gray-500">No inventory records match filter criteria.</td></tr>`;
+                return;
+            }
+
+            items.forEach(item => {
+                const dept = state.departments.find(d => d.id === item.deptId) || { name: 'Unknown' };
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-800/40 transition";
+
+                let condColor = "bg-gray-800 text-gray-300 border-gray-700";
+                if (item.condition === 'Brand New' || item.condition === 'Good Condition') condColor = "bg-emerald-950 text-emerald-300 border-emerald-800";
+                if (item.condition === 'Needs Minor Repair') condColor = "bg-amber-950 text-amber-300 border-amber-800";
+                if (item.condition === 'Broken / Scrap') condColor = "bg-red-950 text-red-300 border-red-800";
+
+                tr.innerHTML = `
+                    <td class="p-3">
+                        <span class="font-semibold text-purple-300">${escapeHtml(dept.name)}</span>
+                    </td>
+                    <td class="p-3">
+                        <div class="font-bold text-white">${escapeHtml(item.name)}</div>
+                        <div class="text-[10px] text-gray-400 font-mono">${escapeHtml(item.tag || 'N/A')}</div>
+                    </td>
+                    <td class="p-3 text-gray-400">${escapeHtml(item.category)}</td>
+                    <td class="p-3 font-bold text-white">${item.quantity}</td>
+                    <td class="p-3 text-gray-300">${escapeHtml(item.location)}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-0.5 rounded text-[10px] border ${condColor}">${escapeHtml(item.condition)}</span>
+                        ${item.conditionDesc ? `<div class="text-[10px] text-gray-400 mt-0.5">${escapeHtml(item.conditionDesc)}</div>` : ''}
+                    </td>
+                    <td class="p-3 text-gray-300">${escapeHtml(item.remarks || '-')}</td>
+                    <td class="p-3">
+                        ${item.adminRemark ? `<span class="text-emerald-400 font-medium">${escapeHtml(item.adminRemark)}</span>` : '<span class="text-gray-500 italic">No remark</span>'}
+                    </td>
+                    <td class="p-3 text-right no-print">
+                        <button onclick="openAuditModal('${item.id}')" class="px-2.5 py-1 bg-purple-900 hover:bg-purple-800 text-purple-200 rounded text-[11px] font-medium border border-purple-700">
+                            Audit Remark
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderDepartmentCards() {
+            const container = document.getElementById('admin-dept-cards-grid');
+            container.innerHTML = '';
+
+            state.departments.forEach(dept => {
+                const deptItems = state.items.filter(i => i.deptId === dept.id);
+                const itemCount = deptItems.reduce((acc, c) => acc + parseInt(c.quantity || 1), 0);
+
+                const card = document.createElement('div');
+                card.className = "bg-gray-900 border border-gray-800 rounded-2xl p-5 space-y-3 shadow-lg hover:border-purple-800/50 transition";
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h4 class="font-bold text-white text-base">${escapeHtml(dept.name)}</h4>
+                            <p class="text-xs text-purple-300">HOD: ${escapeHtml(dept.hodName)}</p>
+                        </div>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${dept.submitted ? 'bg-emerald-950 text-emerald-300 border-emerald-800' : 'bg-amber-950 text-amber-300 border-amber-800'}">
+                            ${dept.submitted ? 'SUBMITTED' : 'PENDING'}
+                        </span>
+                    </div>
+
+                    <div class="bg-gray-950 p-3 rounded-xl border border-gray-800/80 space-y-1 font-mono text-xs">
+                        <div class="flex justify-between text-gray-400">
+                            <span>Username:</span>
+                            <span class="text-white">${escapeHtml(dept.username)}</span>
+                        </div>
+                        <div class="flex justify-between text-gray-400">
+                            <span>Total Items Logged:</span>
+                            <span class="text-purple-300 font-bold">${itemCount}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-2 pt-2 border-t border-gray-800/60">
+                        <button onclick="editDepartment('${dept.id}')" class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-xs text-gray-200 rounded-lg">
+                            <i class="fa-solid fa-pen mr-1"></i> Edit HOD Account
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderAdminUsersTable() {
+            const tbody = document.getElementById('admin-users-table-body');
+            tbody.innerHTML = '';
+
+            state.admins.forEach(adm => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-800/40 transition";
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-white">${escapeHtml(adm.name)}</td>
+                    <td class="p-3 font-mono text-purple-300">${escapeHtml(adm.username)}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 bg-purple-950 text-purple-300 rounded border border-purple-800 text-[10px]">${escapeHtml(adm.role || 'Admin')}</span></td>
+                    <td class="p-3 text-gray-400">${adm.dateAdded || '2026-01-01'}</td>
+                    <td class="p-3 text-right">
+                        ${adm.username !== 'headteacher' ? `
+                            <button onclick="deleteAdmin('${adm.id}')" class="p-1.5 text-red-400 hover:bg-gray-800 rounded"><i class="fa-solid fa-trash"></i></button>
+                        ` : '<span class="text-[10px] text-gray-500">Super Admin</span>'}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ================= ITEM ACTIONS (HOD) =================
+        function openAddItemModal() {
+            document.getElementById('modal-item-title').innerText = "Add Department Item";
+            document.getElementById('item-form-id').value = "";
+            document.getElementById('item-form-name').value = "";
+            document.getElementById('item-form-category').value = "Electronics & IT";
+            document.getElementById('item-form-qty').value = "1";
+            document.getElementById('item-form-location').value = "";
+            document.getElementById('item-form-tag').value = "";
+            document.getElementById('item-form-condition').value = "Good Condition";
+            document.getElementById('item-form-condition-desc').value = "";
+            document.getElementById('item-form-remarks').value = "";
+            openModal('modal-item');
+        }
+
+        function editItem(itemId) {
+            const item = state.items.find(i => i.id === itemId);
+            if (!item) return;
+
+            document.getElementById('modal-item-title').innerText = "Edit Department Item";
+            document.getElementById('item-form-id').value = item.id;
+            document.getElementById('item-form-name').value = item.name;
+            document.getElementById('item-form-category').value = item.category;
+            document.getElementById('item-form-qty').value = item.quantity;
+            document.getElementById('item-form-location').value = item.location;
+            document.getElementById('item-form-tag').value = item.tag || "";
+            document.getElementById('item-form-condition').value = item.condition;
+            document.getElementById('item-form-condition-desc').value = item.conditionDesc || "";
+            document.getElementById('item-form-remarks').value = item.remarks || "";
+            openModal('modal-item');
+        }
+
+        function saveHodItem(e) {
+            e.preventDefault();
+            const id = document.getElementById('item-form-id').value;
+            const deptId = state.currentUser.data.id;
+
+            const itemData = {
+                id: id || 'item-' + Date.now(),
+                deptId: deptId,
+                name: document.getElementById('item-form-name').value.trim(),
+                category: document.getElementById('item-form-category').value,
+                quantity: parseInt(document.getElementById('item-form-qty').value) || 1,
+                location: document.getElementById('item-form-location').value.trim(),
+                tag: document.getElementById('item-form-tag').value.trim(),
+                condition: document.getElementById('item-form-condition').value,
+                conditionDesc: document.getElementById('item-form-condition-desc').value.trim(),
+                remarks: document.getElementById('item-form-remarks').value.trim(),
+                adminRemark: id ? (state.items.find(i => i.id === id)?.adminRemark || "") : ""
+            };
+
+            if (id) {
+                const index = state.items.findIndex(i => i.id === id);
+                if (index !== -1) state.items[index] = itemData;
+            } else {
+                state.items.push(itemData);
+            }
+
+            saveState();
+            closeModal('modal-item');
+            renderHodView();
+            showToast("Department item saved successfully");
+        }
+
+        function deleteItem(itemId) {
+            if (confirm("Are you sure you want to remove this item from your inventory?")) {
+                state.items = state.items.filter(i => i.id !== itemId);
+                saveState();
+                renderHodView();
+                showToast("Item removed");
+            }
+        }
+
+        // ================= ADMIN ACTIONS =================
+        function openAddAdminModal() {
+            document.getElementById('admin-form-name').value = "";
+            document.getElementById('admin-form-username').value = "";
+            document.getElementById('admin-form-password').value = "";
+            openModal('modal-admin');
+        }
+
+        function saveAdminUser(e) {
+            e.preventDefault();
+            const u = document.getElementById('admin-form-username').value.trim();
+            if (state.admins.some(a => a.username.toLowerCase() === u.toLowerCase())) {
+                alert("Username already exists!");
+                return;
+            }
+
+            const newAdmin = {
+                id: 'admin-' + Date.now(),
+                name: document.getElementById('admin-form-name').value.trim(),
+                username: u,
+                password: document.getElementById('admin-form-password').value.trim(),
+                role: document.getElementById('admin-form-role').value.trim(),
+                dateAdded: new Date().toISOString().split('T')[0]
+            };
+
+            state.admins.push(newAdmin);
+            saveState();
+            closeModal('modal-admin');
+            renderAdminUsersTable();
+            showToast("New Administrator created successfully");
+        }
+
+        function deleteAdmin(id) {
+            if (confirm("Delete this admin user?")) {
+                state.admins = state.admins.filter(a => a.id !== id);
+                saveState();
+                renderAdminUsersTable();
+                showToast("Admin deleted");
+            }
+        }
+
+        function openAddDepartmentModal() {
+            document.getElementById('modal-dept-title').innerText = "Add New School Department";
+            document.getElementById('dept-form-id').value = "";
+            document.getElementById('dept-form-name').value = "";
+            document.getElementById('dept-form-hod-name').value = "";
+            document.getElementById('dept-form-username').value = "";
+            document.getElementById('dept-form-password').value = "";
+            openModal('modal-dept');
+        }
+
+        function editDepartment(deptId) {
+            const dept = state.departments.find(d => d.id === deptId);
+            if (!dept) return;
+
+            document.getElementById('modal-dept-title').innerText = "Edit Department & HOD";
+            document.getElementById('dept-form-id').value = dept.id;
+            document.getElementById('dept-form-name').value = dept.name;
+            document.getElementById('dept-form-hod-name').value = dept.hodName;
+            document.getElementById('dept-form-username').value = dept.username;
+            document.getElementById('dept-form-password').value = dept.password;
+            openModal('modal-dept');
+        }
+
+        function saveDepartment(e) {
+            e.preventDefault();
+            const id = document.getElementById('dept-form-id').value;
+            const deptData = {
+                id: id || 'dept-' + Date.now(),
+                name: document.getElementById('dept-form-name').value.trim(),
+                hodName: document.getElementById('dept-form-hod-name').value.trim(),
+                username: document.getElementById('dept-form-username').value.trim(),
+                password: document.getElementById('dept-form-password').value.trim(),
+                submitted: id ? (state.departments.find(d => d.id === id)?.submitted || false) : false
+            };
+
+            if (id) {
+                const idx = state.departments.findIndex(d => d.id === id);
+                if (idx !== -1) state.departments[idx] = deptData;
+            } else {
+                state.departments.push(deptData);
+            }
+
+            saveState();
+            closeModal('modal-dept');
+            renderAdminView();
+            showToast("Department configuration saved!");
+        }
+
+        function openAuditModal(itemId) {
+            const item = state.items.find(i => i.id === itemId);
+            if (!item) return;
+
+            document.getElementById('audit-form-item-id').value = item.id;
+            document.getElementById('audit-form-item-name').innerText = item.name;
+            document.getElementById('audit-form-remark').value = item.adminRemark || "";
+            openModal('modal-audit');
+        }
+
+        function saveAuditRemark(e) {
+            e.preventDefault();
+            const id = document.getElementById('audit-form-item-id').value;
+            const remark = document.getElementById('audit-form-remark').value.trim();
+
+            const item = state.items.find(i => i.id === id);
+            if (item) {
+                item.adminRemark = remark;
+                saveState();
+                renderCentralTable();
+                closeModal('modal-audit');
+                showToast("Audit remark saved!");
+            }
+        }
+
+        function openSetDeadlineModal() {
+            // Format existing deadline to datetime-local
+            const d = new Date(state.deadline || defaultDeadlineDate);
+            const formatted = d.toISOString().slice(0, 16);
+            document.getElementById('deadline-form-datetime').value = formatted;
+            openModal('modal-deadline');
+        }
+
+        function saveDeadline(e) {
+            e.preventDefault();
+            const val = document.getElementById('deadline-form-datetime').value;
+            if (val) {
+                state.deadline = new Date(val).toISOString();
+                saveState();
+                updateTimerText();
+                closeModal('modal-deadline');
+                showToast("Audit deadline updated!");
+            }
+        }
+
+        // ================= EXPORT TO CSV =================
+        function exportToCSV() {
+            let csv = 'Department,Item Name,Category,Quantity,Location,Asset Tag,Condition,Condition Notes,HOD Remarks,Admin Remarks\n';
+
+            state.items.forEach(item => {
+                const dept = state.departments.find(d => d.id === item.deptId) || { name: 'N/A' };
+                const row = [
+                    `"${dept.name}"`,
+                    `"${item.name.replace(/"/g, '""')}"`,
+                    `"${item.category}"`,
+                    item.quantity,
+                    `"${item.location.replace(/"/g, '""')}"`,
+                    `"${(item.tag || '').replace(/"/g, '""')}"`,
+                    `"${item.condition}"`,
+                    `"${(item.conditionDesc || '').replace(/"/g, '""')}"`,
+                    `"${(item.remarks || '').replace(/"/g, '""')}"`,
+                    `"${(item.adminRemark || '').replace(/"/g, '""')}"`
+                ];
+                csv += row.join(',') + '\n';
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `BSSM_Inventory_Report_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast("CSV Audit Report exported successfully");
+        }
+
+        // ================= UI HELPER UTILITIES =================
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = "pointer-events-auto bg-purple-900 border border-purple-700 text-white px-4 py-2.5 rounded-xl shadow-2xl text-xs flex items-center gap-2 transform transition-all duration-300 translate-y-2 opacity-0";
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-purple-300"></i> <span>${escapeHtml(message)}</span>`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>"']/g, function(m) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[m];
+            });
+        }
+
+        // Window onload initialization
+        window.onload = function() {
+            initApp();
+        };
+    </script>
+</body>
+</html>
